@@ -1,0 +1,240 @@
+---
+title: "JPhon"
+author: "Jia Ying"
+date: "02/09/2019"
+output: html_document
+---
+
+# Downloading the datasets for this scrip from:
+https://github.com/JY-JiaYING/JPhon-Paper
+
+# Analysis 1: Mid-sagittal articulation analysis
+```{r}
+
+# Loading packages
+library(lme4)
+
+# Loading data
+df1 <- read.csv("C:/Users/Jia/Documents/JPhon_data/a1_TT_TMTD_lag_final.csv")
+
+vowel.ae <- df1[df1$vowel=="ae",]
+vowel.ih <- df1[df1$vowel=="ih",]
+
+syllable.onset <- df1[df1$syllable=="onset",]
+syllable.coda <- df1[df1$syllable=="coda",]
+
+speaker.F03 <- df1[df1$speaker=="F03",]
+speaker.F04 <- df1[df1$speaker=="F04",]
+speaker.F05 <- df1[df1$speaker=="F05",]
+speaker.M06 <- df1[df1$speaker=="M06",]
+speaker.M07 <- df1[df1$speaker=="M07",]
+speaker.M08 <- df1[df1$speaker=="M08",]
+
+df1$delTM <- as.numeric(as.character(df1$delTM))
+df1$delTD <- as.numeric(as.character(df1$delTD))
+
+# Creating boxplot of TT-TM lag
+boxplot( delTM~vowel*syllable, col=(c("skyblue","skyblue4")), data=df1, ylab="Time (ms)", par(font.lab=2), notch=TRUE, las=2, cex.axis=1, at =c(3,4,1,2), par(font.axis = 2 ), font.lab=2  )
+
+# Creating boxplot of TT-TD lag
+boxplot( delTD~vowel*syllable, col=(c("skyblue","skyblue4")), data=df1, ylab="Time (ms)", par(font.lab=2), notch=TRUE, las=2, cex.axis=1, at =c(3,4,1,2), par(font.axis = 2 ), font.lab=2  )
+
+# Creating boxplots of TT-TM lag for individuals
+old.par <- par(mfrow=c(2,3))
+boxplot( delTM~vowel*syllable, col=(c("skyblue","skyblue4")), data=speaker.F03, ylab="Time (ms)", main="F03: TT-TM lag", par(font.lab=2), las=2, cex.axis=1, at =c(3,4,1,2), par(font.axis = 2 ), font.lab=2  )
+boxplot( delTM~vowel*syllable, col=(c("skyblue","skyblue4")), data=speaker.F04, ylab="Time (ms)", main="F04: TT-TM lag", par(font.lab=2), las=2, cex.axis=1, at =c(3,4,1,2), par(font.axis = 2 ), font.lab=2  )
+boxplot( delTM~vowel*syllable, col=(c("skyblue","skyblue4")), data=speaker.F05, ylab="Time (ms)", main="F05: TT-TM lag", par(font.lab=2), las=2, cex.axis=1, at =c(3,4,1,2), par(font.axis = 2 ), font.lab=2  )
+boxplot( delTM~vowel*syllable, col=(c("skyblue","skyblue4")), data=speaker.M06, ylab="Time (ms)", main="M06: TT-TM lag", par(font.lab=2), las=2, cex.axis=1, at =c(3,4,1,2), par(font.axis = 2 ), font.lab=2  )
+boxplot( delTM~vowel*syllable, col=(c("skyblue","skyblue4")), data=speaker.M07, ylab="Time (ms)", main="M07: TT-TM lag", par(font.lab=2), las=2, cex.axis=1, at =c(3,4,1,2), par(font.axis = 2 ), font.lab=2  )
+boxplot( delTM~vowel*syllable, col=(c("skyblue","skyblue4")), data=speaker.M08, ylab="Time (ms)", main="M08: TT-TM lag", par(font.lab=2), las=2, cex.axis=1, at =c(3,4,1,2), par(font.axis = 2 ), font.lab=2  )
+
+# Creating boxplots of TT-TD lag for individuals
+old.par <- par(mfrow=c(2,3))
+boxplot( delTD~vowel*syllable, col=(c("skyblue","skyblue4")), data=speaker.F03, ylab="Time (ms)", main="F03: TT-TD lag", par(font.lab=2), las=2, cex.axis=1, at =c(3,4,1,2), par(font.axis = 2 ), font.lab=2  )
+boxplot( delTD~vowel*syllable, col=(c("skyblue","skyblue4")), data=speaker.F04, ylab="Time (ms)", main="F04: TT-TD lag", par(font.lab=2), las=2, cex.axis=1, at =c(3,4,1,2), par(font.axis = 2 ), font.lab=2  )
+boxplot( delTD~vowel*syllable, col=(c("skyblue","skyblue4")), data=speaker.F05, ylab="Time (ms)", main="F05: TT-TD lag", par(font.lab=2), las=2, cex.axis=1, at =c(3,4,1,2), par(font.axis = 2 ), font.lab=2  )
+boxplot( delTD~vowel*syllable, col=(c("skyblue","skyblue4")), data=speaker.M06, ylab="Time (ms)", main="M06: TT-TD lag", par(font.lab=2), las=2, cex.axis=1, at =c(3,4,1,2), par(font.axis = 2 ), font.lab=2  )
+boxplot( delTD~vowel*syllable, col=(c("skyblue","skyblue4")), data=speaker.M07, ylab="Time (ms)", main="M07: TT-TD lag", par(font.lab=2), las=2, cex.axis=1, at =c(3,4,1,2), par(font.axis = 2 ), font.lab=2  )
+boxplot( delTD~vowel*syllable, col=(c("skyblue","skyblue4")), data=speaker.M08, ylab="Time (ms)", main="M08: TT-TD lag", par(font.lab=2), las=2, cex.axis=1, at =c(3,4,1,2), par(font.axis = 2 ), font.lab=2  )
+
+# Running stats: TT-TM lag
+TTTM.two.factor <- lmer(delTM ~ vowel + syllable + (1+(vowel+syllable)|speaker), data=df1, REML = FALSE)
+summary(TTTM.two.factor)
+
+TTTM.interaction <- lmer(delTM ~ vowel * syllable + (1+(vowel+syllable)|speaker), data=df1, REML = FALSE)
+summary(TTTM.interaction)
+
+anova(TTTM.two.factor,TTTM.interaction)
+
+# Running stats: TT-TD lag
+TTTD.two.factor <- lmer(delTD ~ vowel + syllable + (1+(vowel+syllable)|speaker), data=df1, REML = FALSE)
+summary(TTTD.two.factor)
+
+TTTD.interaction <- lmer(delTD ~ vowel * syllable + (1+(vowel+syllable)|speaker), data=df1, REML = FALSE)
+summary(TTTD.interaction)
+
+anova(TTTD.two.factor,TTTD.interaction)
+
+```
+# Analysis 2: Tongue curvature
+```{r}
+# Loading packages
+library(gss)
+library(ggplot2)
+
+# Loading data:
+df2 <- read.csv("C:/Users/Jia/Documents/JPhon_data/a2_tongue_curvature_results_final.csv")
+
+df2$time <- df2$samp*10
+
+# modeling
+for (i in 1:nrow(df2)){
+  df2$type[i] <- paste0(df2$vowel[i],".",df2$syllable[i])
+}
+df2$type <- as.factor(df2$type)
+
+df2$item <- as.factor(df2$item)
+
+for (i in unique(df2$item)){
+  test <- df2$quad[df2$item==i]
+  if ( max(abs(test))>0.1){
+    df2 <- df2[!df2$item==i,]
+  }
+}
+
+ss.model <- ssanova(quad ~ type + time + type:time,data=df2)
+
+grid <- expand.grid(time = seq(0,800,length=100),
+                    type = c("ae.coda","ae.onset","ih.coda","ih.onset")
+)
+
+grid$fit <- predict(ss.model,newdata=grid,se=T)$fit
+grid$se <- predict(ss.model,newdata=grid,se=T)$se.fit
+
+# Creating the tongue curvature figure
+ggplot(grid,aes(x=time,color=type,group=type)) +
+  xlab("Time (ms)") + ylab("Tongue curvature index") +
+  geom_line(aes(y=fit,color=type),size=1.5) +
+  geom_ribbon(aes(ymin=fit-(1.96*se),ymax=fit+(1.96*se),fill=type),alpha=0.5, color="NA") 
+
+```
+
+# Analysis 3: Tongue lateralization
+```{r}
+# Loading data
+df3 <- read.csv("C:/Users/Jia/Documents/JPhon_data/a3_tongue_lateralization_results_final.csv")
+
+df3$time <- df3$samp*10
+
+# modeling
+for (i in 1:nrow(df3)){
+  df3$type[i] <- paste0(df3$vowel[i],".",df3$syllable[i])
+}
+
+df3$type <- as.factor(df3$type)
+
+df3$item <- as.factor(df3$item)
+
+for (i in unique(df3$item)){
+  test <- df3$delta[df3$item==i]
+  if ( max(abs(test))>20){
+    df3 <- df3[!df3$item==i,]
+  }
+}
+
+ss.model <- ssanova(delta ~ type + time + type:time,data=df3)
+
+grid <- expand.grid(time = seq(0,800,length=100),
+                    type = c("ae.coda","ae.onset","ih.coda","ih.onset")
+)
+
+grid$fit <- predict(ss.model,newdata=grid,se=T)$fit
+grid$se <- predict(ss.model,newdata=grid,se=T)$se.fit
+# Creating the tongue lateralization figure
+ggplot(grid,aes(x=time,color=type,group=type)) +
+  xlab("Time (ms)") + ylab("Tongue lateralization index") +
+  geom_line(aes(y=fit,color=type),size=1.5) +
+  geom_ribbon(aes(ymin=fit-(1.96*se),ymax=fit+(1.96*se),fill=type),alpha=0.5, color="NA") 
+
+```
+
+
+# Analysis 4: Lateralization duration
+```{r}
+# Loading data
+df4 <- read.csv("C:/Users/Jia/Documents/JPhon_data/a4_all_max_min_la_duration_final.csv")
+
+str(df4)
+
+df4$LaDuration <- as.numeric(as.character(df4$LaDuration))
+
+vowel.ae <- df4[df4$vowel=="ae",]
+vowel.ih <- df4[df4$vowel=="ih",]
+
+syllable.onset <- df4[df4$syllable=="onset",]
+syllable.coda <- df4[df4$syllable=="coda",]
+
+F03 <- df4[df4$speaker=="F03",]
+F04 <- df4[df4$speaker=="F04",]
+F05 <- df4[df4$speaker=="F05",]
+M06 <- df4[df4$speaker=="M06",]
+M07 <- df4[df4$speaker=="M07",]
+M08 <- df4[df4$speaker=="M08",]
+
+# Creating boxplot of lateralization duration
+bp <- boxplot( LaDuration~vowel*syllable, col=(c("skyblue","skyblue4")), data=df4,  ylab="Time (ms)", at =c(3,4,1,2), notch=TRUE, las=2, cex.axis=1, par(font.lab = 2), par(font.axis = 2) )
+bp
+
+# Running stats
+LaDuration.two.factor <- lmer(LaDuration ~ vowel + syllable + (1+(vowel+syllable)|speaker), data=df4, REML = FALSE)
+summary(LaDuration.two.factor)
+
+LaDuration.interaction <- lmer(LaDuration ~ vowel * syllable + (1+(vowel+syllable)|speaker), data=df4, REML = FALSE)
+summary(LaDuration.interaction)
+
+anova(LaDuration.two.factor,LaDuration.interaction)
+
+```
+
+# Analysis 5: Mid-sagittal & Para-sagittal lag
+```{r}
+# Loading data
+df5 <- read.csv("C:/Users/Jia/Documents/JPhon_data/a5_mid_para_sgtl_lag_final.csv")
+
+df5$LaLagTM <- as.numeric(as.character(df5$LaLagTM))
+df5$LaLagTD <- as.numeric(as.character(df5$LaLagTD))
+
+vowel.ae <- df5[df5$vowel=="ae",]
+vowel.ih <- df5[df5$vowel=="ih",]
+
+syllable.onset <- df5[df5$syllable=="onset",]
+syllable.coda <- df5[df5$syllable=="coda",]
+
+# Creating boxplot of TM vs. para-sagittal lag
+boxplot( LaLagTM~vowel*syllable, col=(c("skyblue","skyblue4")), data=df5,  ylab="Time (ms)", at =c(3,4,1,2), notch=TRUE, las=2, cex.axis=1, par(font.lab = 2), par(font.axis = 2) )
+
+# Creating boxplot of TD vs. para-sagittal lag
+boxplot( LaLagTD~vowel*syllable, col=(c("skyblue","skyblue4")), data=df5,  ylab="Time (ms)", at =c(3,4,1,2), notch=TRUE, las=2, cex.axis=1, par(font.lab = 2), par(font.axis = 2) )
+
+# Running stats: 
+# Models - TM vs. para-sgtl tongue blade
+TM.Para.two.factor <- lmer(LaLagTM ~ vowel + syllable + (1+(vowel+syllable)|speaker), data=df5, REML = FALSE)
+summary(TM.Para.two.factor)
+
+TM.Para.interaction <- lmer(LaLagTM ~ vowel * syllable + (1+(vowel+syllable)|speaker), data=df5, REML = FALSE)
+summary(TM.Para.interaction)
+
+anova(TM.Para.two.factor,TM.Para.interaction)
+
+# Models - TD vs. para-sgtl tongue blade
+TD.Para.two.factor <- lmer(LaLagTD ~ vowel + syllable + (1+(vowel+syllable)|speaker), data=df5, REML = FALSE)
+summary(TD.Para.two.factor)
+
+TD.Para.interaction <- lmer(LaLagTD ~ vowel * syllable + (1+(vowel+syllable)|speaker), data=df5, REML = FALSE)
+summary(TD.Para.interaction)
+
+anova(TD.Para.two.factor,TD.Para.interaction )
+
+```
+
+# The end
